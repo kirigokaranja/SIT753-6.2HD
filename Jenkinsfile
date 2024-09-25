@@ -12,6 +12,7 @@ pipeline {
         S3_BUCKET_PRODUCTION = 'sharon-professional-pratice-in-it'
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+        SNYK_API_TOKEN = credentials('snyk-token')
     }
 
     stages {
@@ -62,7 +63,7 @@ pipeline {
             steps {
                 echo "Perform a security scan on the code using snyk"
                 sh 'npm install -g snyk'
-                sh 'snyk test --json-file-output=snyk-security.log'
+                sh 'SNYK_TOKEN=<SNYK_API_TOKEN> snyk test --json-file-output=snyk-security.log'
             }
 
              post {
