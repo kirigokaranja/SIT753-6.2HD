@@ -97,7 +97,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Production'){
+        stage('Release'){
             steps {
                 echo "Deploy to AWS to production environment `$PRODUCTION_ENVIRONMENT` using serverless"
                 sh "serverless deploy --stage $PRODUCTION_ENVIRONMENT"
