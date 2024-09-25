@@ -63,7 +63,7 @@ pipeline {
             steps {
                 echo "Perform a security scan on the code using snyk"
                 sh 'npm install -g snyk'
-                sh 'SNYK_TOKEN=<SNYK_API_TOKEN> snyk test --json-file-output=snyk-security.log'
+                sh 'SNYK_TOKEN=$SNYK_API_TOKEN snyk test --json-file-output=snyk-security.log'
             }
 
              post {
