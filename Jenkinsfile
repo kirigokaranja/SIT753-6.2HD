@@ -7,13 +7,33 @@ pipeline {
         STAGING_ENVIRONMENT = 'STAGING'
         PRODUCTION_ENVIRONMENT = 'SHARON'
         EMAIL_RECIPIENT = 's223972975@deakin.edu.au'
+
+        NODE_VERSION = '20.x'
+
+        // Your S3 bucket name
+        S3_BUCKET = 'your-bucket-name'
+
+        // Reference AWS credentials stored in Jenkins
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
     }
 
     stages {
+        stage('Install Dependencies'){
+            steps {
+            echo "Install the code packages ..."
+                script {
+                    def nodeHome = tool name: 'NodeJS', type: 'NodeJSInstallation'
+                    env.PATH = "${nodeHome}/bin:${env.PATH}"
+                    sh 'npm install'
+                }
+            }
+        }
+
         stage('Build'){
             steps {
-                echo "Install and Build the code packages ..."
-                sh 'npm install'
+                echo " Build the code packages ..."
+                sh 'npm run build'
             }
         }
 
