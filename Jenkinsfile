@@ -73,8 +73,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        echo "The pipeline '${env.JOB_NAME}' Build #${env.BUILD_NUMBER} execution has completed."
-    }
 }
