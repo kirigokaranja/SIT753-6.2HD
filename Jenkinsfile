@@ -1,6 +1,10 @@
 pipeline {
 
-    agent any
+    agent {
+        docker {
+                    image 'amazon/aws-cli'
+                }
+    }
 
     tools {
         nodejs "NodeJS"
@@ -21,10 +25,6 @@ pipeline {
                 echo "Install the code packages ..."
                 sh 'npm install'
                 sh 'npm install -g snyk'
-                sh '''
-                    sudo apt-get update
-                    sudo apt-get install -y awscli
-                '''
             }
         }
 
