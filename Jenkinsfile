@@ -2,6 +2,10 @@ pipeline {
 
     agent any
 
+    tools {
+        nodejs "NodeJS"
+    }
+
     environment {
         DIRECTORY_PATH = '/var/www/html/deakin-uni/ui'
         STAGING_ENVIRONMENT = 'STAGING'
@@ -21,12 +25,8 @@ pipeline {
     stages {
         stage('Install Dependencies'){
             steps {
-            echo "Install the code packages ..."
-                script {
-                    def nodeHome = tool name: 'NodeJS', type: 'NodeJSInstallation'
-                    env.PATH = "${nodeHome}/bin:${env.PATH}"
-                    sh 'npm install'
-                }
+                echo "Install the code packages ..."
+                sh 'npm install'
             }
         }
 
