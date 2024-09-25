@@ -2,8 +2,8 @@ pipeline {
 
     agent {
         docker {
-                    image 'amazon/aws-cli'
-                }
+            image 'amazon/aws-cli'
+        }
     }
 
     tools {
