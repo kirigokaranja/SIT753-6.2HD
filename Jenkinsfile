@@ -7,17 +7,9 @@ pipeline {
     }
 
     environment {
-        DIRECTORY_PATH = '/var/www/html/deakin-uni/ui'
-        STAGING_ENVIRONMENT = 'STAGING'
-        PRODUCTION_ENVIRONMENT = 'SHARON'
         EMAIL_RECIPIENT = 's223972975@deakin.edu.au'
-
-        NODE_VERSION = '20.x'
-
-        // Your S3 bucket name
-        S3_BUCKET = 'your-bucket-name'
-
-        // Reference AWS credentials stored in Jenkins
+        S3_BUCKET_STAGING = 'professional-practice-staging'
+        S3_BUCKET_PRODUCTION = 'sharon-professional-pratice-in-it'
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
     }
@@ -51,7 +43,8 @@ pipeline {
                     subject: "Unit Test ${env.JOB_NAME} #${env.BUILD_NUMBER} Status email",
                     body:  """
 
-                        The Jenkins Pipeline Unit Tests stage has finished running
+                        The Jenkins Pipeline Unit Tests stage has finished running.
+
                         Find attached logs for more details.
                         """
                 }
@@ -68,17 +61,18 @@ pipeline {
         stage('Security Scan'){
             steps {
                 echo "Perform a security scan on the code using snyk"
-                sh 'snyk test --json-file-output=security-scan.log'
+                sh 'snyk test --json-file-output=snyk-security.log'
             }
 
              post {
                 always {
-                    emailext attachmentsPattern: 'security-scan.log',
+                    emailext attachmentsPattern: 'snyk-security.log',
                     to: "${env.EMAIL_RECIPIENT}",
                     subject: "Security Scan ${env.JOB_NAME} Build #${env.BUILD_NUMBER} Status email",
                     body:  """
 
                         The Jenkins Pipeline Security scan stage has finished running
+
                         Find attached logs for more details.
                         """
                 }
@@ -88,6 +82,9 @@ pipeline {
         stage('Deploy to Staging'){
             steps {
                 echo "Deploy to AWS to staging environment "
+                sh '''
+                aws s3 sync ./dist s3://$S3_BUCKET_STAGING --delete
+                '''
             }
         }
 
