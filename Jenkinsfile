@@ -24,7 +24,7 @@ pipeline {
             steps {
                 echo "Install the code packages ..."
                 sh 'npm install'
-                sh 'npm install -g snyk'
+                sh 'npm install snyk'
             }
         }
 
