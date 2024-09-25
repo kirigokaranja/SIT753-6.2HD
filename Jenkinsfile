@@ -19,7 +19,7 @@ pipeline {
 
         stage('Tests'){
             steps {
-                echo "Running unit tests for Vue using Jest ..."
+                echo "Running unit tests using Jest ..."
                 sh 'npm run test:unit'
             }
         }
