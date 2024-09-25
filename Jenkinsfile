@@ -33,7 +33,7 @@ pipeline {
 
         stage('Security Scan'){
             steps {
-                echo "Perform a security scan on the code using OWASP to identify any vulnerabilities"
+                echo "Perform a security scan on the code using snyk"
                 sh 'echo "Perform a security scan using OWASP ..." > security-scan.log'
             }
 
