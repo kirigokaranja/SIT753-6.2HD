@@ -20,6 +20,8 @@ pipeline {
             steps {
                 echo "Install the code packages ..."
                 sh 'npm install'
+                sh 'npm install -g snyk'
+                sh 'pip install awscli'
             }
         }
 
@@ -62,7 +64,6 @@ pipeline {
         stage('Security Scan'){
             steps {
                 echo "Perform a security scan on the code using snyk"
-                sh 'npm install -g snyk'
                 sh 'SNYK_TOKEN=$SNYK_API_TOKEN snyk test --json-file-output=snyk-security.log'
             }
 
@@ -85,6 +86,8 @@ pipeline {
             steps {
                 echo "Deploy to AWS to staging environment "
                 sh '''
+                aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
                 aws s3 sync ./dist s3://$S3_BUCKET_STAGING --delete
                 '''
             }
