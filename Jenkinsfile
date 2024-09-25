@@ -26,7 +26,7 @@ pipeline {
 
         stage('Code Analysis'){
             steps {
-                echo "Analyze the code using Eslint to ensure it meets industry standards ..."
+                echo "Analyze the code using Eslint ..."
                 sh 'npm run lint'
             }
         }
