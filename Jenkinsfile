@@ -1,10 +1,6 @@
 pipeline {
 
-    agent {
-        docker {
-            image 'amazon/aws-cli'
-        }
-    }
+    agent any
 
     tools {
         nodejs "NodeJS"
@@ -17,6 +13,8 @@ pipeline {
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
         SNYK_API_TOKEN = credentials('snyk-token')
+        STAGING_ENVIRONMENT = 'staging'
+        PRODUCTION_ENVIRONMENT = 'production'
     }
 
     stages {
@@ -25,21 +23,22 @@ pipeline {
                 echo "Install the code packages ..."
                 sh 'npm install'
                 sh 'npm install snyk'
+                sh 'npm install -g serverless'
             }
         }
 
         stage('Build'){
             steps {
                 echo " Build the code packages ..."
-                sh 'npm run build'
+                sh "npm run build"
             }
         }
 
         stage('Tests'){
             steps {
                 echo "Running unit tests using Jest ..."
-                sh 'npm run test:unit'
-                sh 'npm run test:unit > unit-test.log 2>&1'
+                sh "npm run test:unit"
+                sh "npm run test:unit > unit-test.log 2>&1"
             }
 
             post {
@@ -60,14 +59,14 @@ pipeline {
         stage('Code Analysis'){
             steps {
                 echo "Analyze the code using Eslint ..."
-                sh 'npm run lint'
+                sh "npm run lint"
             }
         }
 
         stage('Security Scan'){
             steps {
                 echo "Perform a security scan on the code using snyk"
-                sh 'SNYK_TOKEN=$SNYK_API_TOKEN snyk test --json-file-output=snyk-security.log'
+                sh "SNYK_TOKEN=$SNYK_API_TOKEN snyk test --json-file-output=snyk-security.log"
             }
 
              post {
@@ -88,24 +87,21 @@ pipeline {
         stage('Deploy to Staging'){
             steps {
                 echo "Deploy to AWS to staging environment "
-                sh '''
-                aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-                aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-                aws s3 sync ./dist s3://$S3_BUCKET_STAGING --delete
-                '''
+                sh "serverless deploy --stage $STAGING_ENVIRONMENT"
             }
         }
 
         stage('Integration Tests on Staging'){
             steps {
                 echo "Running integrations tests in staging using Jest ..."
-                sh 'npm run test'
+                sh "npm run test"
             }
         }
 
         stage('Deploy to Production'){
             steps {
-                echo "Deploy to AWS to production environment `$PRODUCTION_ENVIRONMENT` using AWS CloudFormation"
+                echo "Deploy to AWS to production environment `$PRODUCTION_ENVIRONMENT` using serverless"
+                sh "serverless deploy --stage $PRODUCTION_ENVIRONMENT"
             }
         }
     }
