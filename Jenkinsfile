@@ -23,8 +23,6 @@ pipeline {
             steps {
                 echo "Install the code packages ..."
                 sh 'npm install'
-                sh 'npm install snyk'
-                sh 'npm install -g serverless'
             }
         }
 
