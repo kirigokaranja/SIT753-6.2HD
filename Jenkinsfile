@@ -13,6 +13,7 @@ pipeline {
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
         SNYK_API_TOKEN = credentials('snyk-token')
+        SERVERLESS_ACCESS_KEY = credentials('serverless-key')
         STAGING_ENVIRONMENT = 'staging'
         PRODUCTION_ENVIRONMENT = 'production'
     }
