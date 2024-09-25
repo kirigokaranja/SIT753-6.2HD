@@ -41,6 +41,20 @@ pipeline {
             steps {
                 echo "Running unit tests using Jest ..."
                 sh 'npm run test:unit'
+                sh 'npm run test:unit > unit-test.log 2>&1'
+            }
+
+            post {
+                always {
+                    emailext attachmentsPattern: 'unit-test.log',
+                    to: "${env.EMAIL_RECIPIENT}",
+                    subject: "Unit Test ${env.JOB_NAME} #${env.BUILD_NUMBER} Status email",
+                    body:  """
+
+                        The Jenkins Pipeline Unit Tests stage has finished running
+                        Find attached logs for more details.
+                        """
+                }
             }
         }
 
@@ -54,7 +68,7 @@ pipeline {
         stage('Security Scan'){
             steps {
                 echo "Perform a security scan on the code using snyk"
-                sh 'echo "Perform a security scan using OWASP ..." > security-scan.log'
+                sh 'snyk test --json-file-output=security-scan.log'
             }
 
              post {
@@ -65,10 +79,6 @@ pipeline {
                     body:  """
 
                         The Jenkins Pipeline Security scan stage has finished running
-
-                        - Build Number: $BUILD_NUMBER
-                        - Status: $currentBuild.currentResult
-
                         Find attached logs for more details.
                         """
                 }
@@ -77,19 +87,20 @@ pipeline {
 
         stage('Deploy to Staging'){
             steps {
-                echo "Deploy to application to staging environment `$STAGING_ENVIRONMENT` using AWS CloudFormation or Azure Storage"
+                echo "Deploy to AWS to staging environment "
             }
         }
 
         stage('Integration Tests on Staging'){
             steps {
-                echo "Using Selenium to run integration tests on the staging environment to ensure the application functions as expected in a production-like environment"
+                echo "Running integrations tests in staging using Jest ..."
+                sh 'npm run test'
             }
         }
 
         stage('Deploy to Production'){
             steps {
-                echo "Deploy to application to production environment `$PRODUCTION_ENVIRONMENT` using AWS CloudFormation"
+                echo "Deploy to AWS to production environment `$PRODUCTION_ENVIRONMENT` using AWS CloudFormation"
             }
         }
     }
