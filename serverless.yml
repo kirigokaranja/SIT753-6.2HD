@@ -19,3 +19,15 @@ functions:
           path: "/{proxy+}"
           method: ANY
           cors: true
+
+package:
+  exclude:
+    - node_modules/**
+    - .git/**
+    - .vscode/**
+    - tests/**
+    - coverage/**
+    - docs/**
+    - logs/**
+    - '*.md'
+
