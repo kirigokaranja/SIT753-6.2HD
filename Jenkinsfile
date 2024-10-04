@@ -15,6 +15,7 @@ pipeline {
         STAGING_ENVIRONMENT = 'staging'
         PRODUCTION_ENVIRONMENT = 'production'
         SNS_TOPIC_ARN = 'arn:aws:sns:ap-southeast-2:864981747148:S3ErrorAlarms'
+        DATADOG_API_KEY = credentials('YOUR_DATADOG_API_KEY')
     }
 
     stages {
@@ -102,26 +103,24 @@ pipeline {
                 sh "serverless s3sync --stage $PRODUCTION_ENVIRONMENT"
             }
         }
+    }
 
-        stage('Setup CloudWatch Alarm for S3 4xx Errors') {
-            steps {
-                echo "Setting up CloudWatch Alarm for S3 4xx Errors"
-                sh """
-                aws cloudwatch put-metric-alarm \
-                --alarm-name professional-practice-production-4xxErrorAlarm \
-                --alarm-description 'Alarm when S3 bucket has 4xx client errors' \
-                --metric-name 4xxErrors \
-                --namespace AWS/S3 \
-                --statistic Sum \
-                --period 300 \
-                --threshold 10 \
-                --comparison-operator GreaterThanOrEqualToThreshold \
-                --dimensions Name=BucketName,Value=professional-practice-production,Name=StorageType,Value=AllStorageTypes \
-                --evaluation-periods 1 \
-                --alarm-actions $SNS_TOPIC_ARN \
-                --region ap-southeast-2
-                """
-            }
+    post {
+        always {
+            datadogSend(
+                apiKey: "$DATADOG_API_KEY",
+                tags: "environment:production"
+            )
+        }
+        failure {
+            echo 'Build failed! Sending alert to Datadog...'
+            datadogSend(
+                title: 'Build Failed in Production!',
+                text: 'The Jenkins build has failed in production.',
+                priority: 'high',
+                tags: "environment:production",
+                alertType: 'error'
+            )
         }
     }
 }
