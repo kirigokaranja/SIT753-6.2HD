@@ -114,7 +114,7 @@ pipeline {
                 --namespace AWS/S3 \
                 --statistic Sum \
                 --period 300 \
-                --threshold 10 \  // Set threshold for 4xx errors
+                --threshold 10 \
                 --comparison-operator GreaterThanOrEqualToThreshold \
                 --dimensions Name=BucketName,Value=professional-practice-production,Name=StorageType,Value=AllStorageTypes \
                 --evaluation-periods 1 \
