@@ -92,8 +92,8 @@ pipeline {
 
         stage('Integration Tests on Staging'){
             steps {
-                echo "Running integrations tests in staging using Jest ..."
-                sh "npm run test"
+                echo "Running integrations tests in staging ..."
+                sh "npm run test:e2e"
             }
         }
 

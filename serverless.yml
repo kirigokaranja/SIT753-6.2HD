@@ -16,11 +16,13 @@ functions:
     handler: handler.handler
     events:
       - http:
-          path: index
+          path: /
           method: get
           cors: true
 
 package:
+  include:
+    - dist/**
   exclude:
     - node_modules/**
     - .git/**
