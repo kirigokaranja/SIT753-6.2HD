@@ -1,17 +1,15 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-exports.handler = async (event) => {
-  const filePath = path.join(__dirname, 'dist', 'index.html');
-  const htmlContent = fs.readFileSync(filePath, 'utf8');
+exports.handler = async () => {
+  const filePath = path.join(__dirname, "dist", "index.html");
+  const htmlContent = fs.readFileSync(filePath, "utf8");
 
-  const response = {
+  return {
     statusCode: 200,
     headers: {
-      'Content-Type': 'text/html',
+      "Content-Type": "text/html",
     },
     body: htmlContent,
   };
-
-  return response;
 };

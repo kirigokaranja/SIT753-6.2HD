@@ -11,14 +11,22 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: us-east-1
 
+resources:
+  Resources:
+    S3Bucket:
+      Type: 'AWS::S3::Bucket'
+      Properties:
+        BucketName: professional-practice-${opt:stage, 'staging'}
+
+
 functions:
-  app:
-    handler: handler.handler
+  deploy:
+    handler: handler.deploy
     events:
-      - http:
-          path: /
-          method: get
-          cors: false
+      - s3:
+          bucket: professional-practice-${opt:stage, 'staging'}
+          event: s3:ObjectCreated:Put
+          existing: true
 
 package:
   include:
@@ -32,3 +40,15 @@ package:
     - docs/**
     - logs/**
     - '*.md'
+
+plugins:
+  - serverless-s3-sync
+
+custom:
+  s3Sync:
+    - bucketName: professional-practice-${opt:stage, 'staging'}
+      localDir: dist
+
+
+
+
