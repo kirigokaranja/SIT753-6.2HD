@@ -18,7 +18,7 @@ functions:
       - http:
           path: /
           method: get
-          cors: true
+          cors: false
 
 package:
   include:
@@ -32,4 +32,3 @@ package:
     - docs/**
     - logs/**
     - '*.md'
-

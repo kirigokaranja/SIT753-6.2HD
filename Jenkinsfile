@@ -93,7 +93,7 @@ pipeline {
         stage('Integration Tests on Staging'){
             steps {
                 echo "Running integrations tests in staging ..."
-                sh "npm run test:e2e"
+                sh "npm run test"
             }
         }
 
