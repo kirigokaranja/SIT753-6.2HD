@@ -8,14 +8,13 @@ pipeline {
 
     environment {
         EMAIL_RECIPIENT = 's223972975@deakin.edu.au'
-        S3_BUCKET_STAGING = 'professional-practice-staging'
-        S3_BUCKET_PRODUCTION = 'sharon-professional-pratice-in-it'
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
         SNYK_API_TOKEN = credentials('snyk-token')
         SERVERLESS_ACCESS_KEY = credentials('serverless-key')
         STAGING_ENVIRONMENT = 'staging'
         PRODUCTION_ENVIRONMENT = 'production'
+        SNS_TOPIC_ARN = 'arn:aws:sns:ap-southeast-2:864981747148:S3ErrorAlarms'
     }
 
     stages {
@@ -101,6 +100,27 @@ pipeline {
             steps {
                 echo "Deploy to AWS to production environment `$PRODUCTION_ENVIRONMENT` using serverless"
                 sh "serverless s3sync --stage $PRODUCTION_ENVIRONMENT"
+            }
+        }
+
+        stage('Setup CloudWatch Alarm for S3 4xx Errors') {
+            steps {
+                echo "Setting up CloudWatch Alarm for S3 4xx Errors"
+                sh """
+                aws cloudwatch put-metric-alarm \
+                --alarm-name professional-practice-production-4xxErrorAlarm \
+                --alarm-description 'Alarm when S3 bucket has 4xx client errors' \
+                --metric-name 4xxErrors \
+                --namespace AWS/S3 \
+                --statistic Sum \
+                --period 300 \
+                --threshold 10 \  // Set threshold for 4xx errors
+                --comparison-operator GreaterThanOrEqualToThreshold \
+                --dimensions Name=BucketName,Value=professional-practice-production,Name=StorageType,Value=AllStorageTypes \
+                --evaluation-periods 1 \
+                --alarm-actions $SNS_TOPIC_ARN \
+                --region ap-southeast-2
+                """
             }
         }
     }
