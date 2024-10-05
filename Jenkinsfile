@@ -6,6 +6,16 @@ pipeline {
         nodejs "NodeJS"
     }
 
+    options {
+        datadog(collectLogs: true,
+        tags: [
+            "env:production",
+            "pipeline:build-deploy",
+            "project:devops",
+            "stage:deploy"
+        ])
+    }
+
     environment {
         EMAIL_RECIPIENT = 's223972975@deakin.edu.au'
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
@@ -103,24 +113,7 @@ pipeline {
                 sh "serverless s3sync --stage $PRODUCTION_ENVIRONMENT"
             }
         }
+
     }
 
-    post {
-        always {
-            datadogSend(
-                apiKey: "$DATADOG_API_KEY",
-                tags: "environment:production"
-            )
-        }
-        failure {
-            echo 'Build failed! Sending alert to Datadog...'
-            datadogSend(
-                title: 'Build Failed in Production!',
-                text: 'The Jenkins build has failed in production.',
-                priority: 'high',
-                tags: "environment:production",
-                alertType: 'error'
-            )
-        }
-    }
 }
