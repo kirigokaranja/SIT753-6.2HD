@@ -95,7 +95,7 @@ pipeline {
 
         stage('Deploy to Staging'){
             steps {
-                echo "Severless Deploy to AWS to staging environment "
+                echo "Severless S3 Deploy to AWS to staging environment "
                 sh "serverless s3sync --stage $STAGING_ENVIRONMENT"
             }
         }
